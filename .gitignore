@@ -1,0 +1,16 @@
+# ESPHome build output
+.esphome/
+build/
+*.bin
+*.elf
+*.map
+
+# Never commit local credentials
+secrets.yaml
+secrets.*.yaml
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
