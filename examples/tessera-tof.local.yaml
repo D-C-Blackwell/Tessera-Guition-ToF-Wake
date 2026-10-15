@@ -6,6 +6,12 @@
 #
 # Preserve other local configuration, such as relay definitions.
 
+logger:
+  logs:
+    # Keep warnings and errors without logging every ToF measurement.
+    sensor: WARN
+    vl53l0x: WARN
+
 i2c:
   # Existing Tessera GT911 touchscreen bus, shared with the VL53L0X.
   - id: touch_bus
@@ -16,11 +22,20 @@ i2c:
     scan: true
     frequency: 100kHz
 
+binary_sensor:
+  - platform: template
+    id: screen_approach
+    name: "Screen Approach"
+    device_class: occupancy
+    on_press:
+      # Tessera's own local wake control.
+      - button.press: wake_button
+
 sensor:
-  # Fast local reading used for approach detection. Keeping it internal prevents
-  # every small distance change from being sent to Home Assistant.
+  # The raw measurement stays on the screen. The filter publishes only changes
+  # to Screen Approach, so Home Assistant is not sent every distance sample.
   - platform: vl53l0x
-    id: screen_proximity_distance_raw
+    id: screen_proximity_distance
     i2c_id: touch_bus
     address: 0x29
     update_interval: 500ms
@@ -28,47 +43,27 @@ sensor:
     timing_budget: 50ms
     timeout: 100ms
     internal: true
-
-  # Slower diagnostic reading exposed to Home Assistant.
-  - platform: template
-    id: screen_proximity_distance
-    name: "Screen Proximity Distance"
-    icon: mdi:arrow-expand-horizontal
-    entity_category: diagnostic
-    device_class: distance
-    state_class: measurement
-    unit_of_measurement: "m"
-    accuracy_decimals: 3
-    update_interval: 5s
-    lambda: |-
-      const float distance = id(screen_proximity_distance_raw).state;
-      if (isnan(distance)) {
-        return {};
-      }
-      return distance;
-
-binary_sensor:
-  - platform: template
-    id: screen_approach
-    name: "Screen Approach"
-    device_class: occupancy
-    lambda: |-
-      const float distance = id(screen_proximity_distance_raw).state;
-      if (isnan(distance)) {
-        return false;
-      }
-
-      // Activate at 0.50 m. Once active, remain active until beyond 0.65 m.
-      if (id(screen_approach).state) {
-        return distance < 0.65f;
-      }
-      return distance <= 0.50f;
     filters:
-      - delayed_on: 100ms
-      - delayed_off: 2s
-    on_press:
-      # Tessera's own local wake control.
-      - button.press: wake_button
+      - lambda: |-
+          static double minTripDistance = 1.0;
+
+          if (x <= minTripDistance) {
+            if (id(screen_approach).state == true) {
+              return {};
+            }
+
+            id(screen_approach).publish_state(true);
+            ESP_LOGI("screen_proximity", "Screen approach detected at %.3f m", x);
+            return {};
+          } else {
+            if (id(screen_approach).state == false) {
+              return {};
+            }
+
+            id(screen_approach).publish_state(false);
+            ESP_LOGI("screen_proximity", "Screen approach cleared at %.3f m", x);
+            return {};
+          }
 
 # Keep the display awake while somebody remains within the approach distance.
 # Tessera resumes its normal standby behaviour after the sensor clears.

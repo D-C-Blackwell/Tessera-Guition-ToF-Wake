@@ -1,6 +1,11 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## 0.2.0 - 2026-10-15
+
+- Changed the default approach distance to 1.0 m.
+- Kept raw distance measurements local to the screen.
+- Published only detected and cleared state changes to Home Assistant.
+- Limited routine ToF logs while retaining transition, warning and error logs.
 
 ## 0.1.0 - 2026-10-15
 

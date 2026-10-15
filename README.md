@@ -5,8 +5,8 @@ Guition ESP32-S3-4848S040 display running
 [Tessera](https://github.com/MaxGramser/homeassistant_espscreen).
 
 The sensor wakes the display locally when somebody approaches. Home Assistant
-receives an occupancy entity and a slower diagnostic distance reading, but it is
-not responsible for the wake action.
+receives an occupancy entity only when its state changes. It is not responsible
+for the wake action.
 
 ## Project status
 
@@ -99,20 +99,18 @@ The key name may differ, but the included filename must match your screen.
 ## How it works
 
 - The VL53L0X samples locally every 500 ms.
-- Approach activates at 0.50 m or closer.
-- It remains active until the measured distance exceeds 0.65 m.
-- The separate activation and release distances prevent rapid switching around
-  the threshold.
+- Approach activates at 1.0 m or closer.
+- The raw distance remains internal to the screen.
+- Home Assistant receives only detected and cleared state changes.
 - Tessera's local `wake_button` wakes the display without a Home Assistant
   automation or network round-trip.
 - While somebody remains nearby, Tessera's standby timer is refreshed every
   five seconds.
-- The diagnostic distance entity is published to Home Assistant every five
-  seconds, avoiding unnecessary recorder traffic while preserving responsive
-  local detection.
+- Repetitive VL53L0X and sensor logs are suppressed. Detected and cleared
+  transitions remain visible in the logs.
 
-Change the `0.50f` and `0.65f` values in the example if different activation and
-release distances are required.
+Change `minTripDistance` in the example if a different activation distance is
+required. The value is measured in metres.
 
 ## Installation
 
@@ -146,15 +144,16 @@ sensor.
 
 ## Troubleshooting
 
-### Distance remains unknown
+### Approach remains unknown
 
 Check the ESPHome logs for address `0x29`. If it is absent, verify power, ground,
 SDA, SCL, solder joints and the breakout board's voltage requirements.
 
-### Distance is always approximately 4-5 cm
+### Detection remains active at an incorrect distance
 
-Move the sensor outside the enclosure and point it into open space. If the value
-then changes, correct its position or optical isolation before mounting it.
+Move the sensor outside the enclosure and point it into open space. Check the
+detected and cleared distances in the logs. If detection then behaves correctly,
+fix the sensor position or optical isolation before mounting it.
 
 ### Touchscreen stops working
 
