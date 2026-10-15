@@ -62,15 +62,6 @@ The VL53L0X shares the existing GT911 touchscreen I2C bus:
 The exact solder points may differ between Guition board revisions. Confirm the
 board revision and connections before applying power.
 
-Important pin notes:
-
-- This project does not use the P1 UART connector as an I2C bus. GPIO43 and
-  GPIO44 did not communicate reliably with the sensor in the test installation.
-- Do not use GPIO8 or GPIO9. They carry green-channel RGB display data on this
-  board.
-- GPIO45 is a strapping pin; the supplied configuration retains Tessera's
-  existing handling for it.
-
 ## Configuration
 
 The ready-to-copy configuration is in
