@@ -28,6 +28,26 @@ installation.
 - VL53L0X ToF sensor breakout
 - Suitable wiring and mounting hardware
 
+## Required skills and tools
+
+This modification requires soldering directly to small points on the Guition
+PCB. It is intended for people who already have experience with fine-pitch
+electronics soldering and board-level inspection.
+
+The working prototype was assembled using a precision, temperature-controlled
+soldering iron and a microscope. Recommended equipment includes:
+
+- Fine soldering-iron tip
+- Electronics microscope or strong magnification
+- Fine insulated wire
+- Suitable flux and fine-gauge solder
+- Multimeter for continuity and voltage checks
+- ESD-safe working area
+
+Incorrect soldering can lift pads, bridge adjacent signals or permanently
+damage the display, ESP32, touchscreen or sensor. Do not attempt the modification
+without the tools and experience needed to identify and inspect the connections.
+
 ## Wiring
 
 The VL53L0X shares the existing GT911 touchscreen I2C bus:
@@ -171,6 +191,8 @@ internal IDs are renamed.
 Some Guition displays are installed on mains-powered relay bases. Disconnect all
 sources of power before opening the enclosure or soldering. Verify the supply
 and logic-voltage requirements of the exact VL53L0X breakout board being used.
+Perform continuity checks and inspect every joint under magnification before
+reconnecting USB or mains power.
 
 ## Licence
 

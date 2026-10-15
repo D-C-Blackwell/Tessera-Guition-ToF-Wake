@@ -11,3 +11,5 @@ All notable changes to this project will be documented in this file.
   diagnostic update.
 - Documented shared GT911 I2C wiring, installation, optical mounting and
   troubleshooting.
+- Documented the precision soldering experience, microscope and inspection
+  equipment required for the hardware modification.
