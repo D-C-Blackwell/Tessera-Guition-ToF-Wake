@@ -1,0 +1,15 @@
+id: guition_tof_wake
+version: 0.3.0
+api: "0.8"
+icon: motion-sensor
+maintainer: D-C-Blackwell
+license: MIT
+stage: beta
+topics: [home, tech]
+requires:
+  esphome: 2026.6.2
+boards: [guition]
+flash_kb: 8
+
+settings:
+  - { key: guition_tof_wake_distance, label: wake_distance, hint: wake_distance_hint }

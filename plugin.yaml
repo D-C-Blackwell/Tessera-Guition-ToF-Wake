@@ -1,0 +1,65 @@
+# The VL53L0X shares Tessera's touchscreen I2C bus. Raw samples stay inside the screen. Only approach state changes
+# are published to Home Assistant.
+number:
+  - platform: template
+    id: guition_tof_wake_distance
+    name: "ToF wake distance"
+    icon: mdi:arrow-expand-horizontal
+    optimistic: true
+    min_value: 10
+    max_value: 200
+    step: 10
+    initial_value: 100
+    restore_value: true
+    unit_of_measurement: "cm"
+    entity_category: config
+
+binary_sensor:
+  - platform: template
+    id: guition_tof_wake_approach
+    name: "Screen approach"
+    device_class: occupancy
+    on_press:
+      - button.press: wake_button
+
+sensor:
+  - platform: vl53l0x
+    id: guition_tof_wake_sensor
+    i2c_id: touch_bus
+    address: 0x29
+    update_interval: 500ms
+    long_range: false
+    timing_budget: 50ms
+    timeout: 100ms
+    internal: true
+    filters:
+      - lambda: |-
+          const float configured_cm = id(guition_tof_wake_distance).state;
+          const float limit_m = std::isnan(configured_cm) ? 1.0f : configured_cm / 100.0f;
+          const bool detected = !std::isnan(x) && x <= limit_m;
+          static bool state_sent = false;
+          static bool last_detected = false;
+
+          if (state_sent && last_detected == detected) {
+            return {};
+          }
+
+          state_sent = true;
+          last_detected = detected;
+          id(guition_tof_wake_approach).publish_state(detected);
+          ESP_LOGI("guition_tof_wake", "Approach %s at %.3f m", detected ? "detected" : "cleared", x);
+          return {};
+
+# Pressing Tessera's local Wake control also resets its standby timer. This keeps the display awake while somebody
+# remains within the configured distance.
+interval:
+  - interval: 5s
+    then:
+      - if:
+          condition:
+            binary_sensor.is_on: guition_tof_wake_approach
+          then:
+            - button.press: wake_button
+
+guition_tof_wake:
+  wake_distance: guition_tof_wake_distance

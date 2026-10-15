@@ -1,0 +1,13 @@
+{
+  "_meta": { "name": "English" },
+  "screen": {
+    "name": "ToF wake",
+    "wake_distance": "Wake distance"
+  },
+  "app": {
+    "name": "Guition ToF wake",
+    "summary": "Wakes a Guition screen when a VL53L0X detects somebody within the chosen distance.",
+    "wake_distance": "Wake distance",
+    "wake_distance_hint": "The display wakes when an object is this close or closer."
+  }
+}

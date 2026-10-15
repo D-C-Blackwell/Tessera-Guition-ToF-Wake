@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 - 2026-10-15
+
+- Added installation as a Tessera plugin.
+- Added a 10 cm to 200 cm wake-distance setting.
+- Used Tessera's local Wake control to reset standby while approach remains active.
+
 ## 0.2.0 - 2026-10-15
 
 - Changed the default approach distance to 1.0 m.
